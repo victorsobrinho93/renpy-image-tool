@@ -14,14 +14,13 @@ class Parameters(ConfigParser):
                 'ImagesDirectory': '',
             }
             self['Timing'] = {
-                'DefaultTiming': '',
+                'DefaultTiming': '0.1',
             }
             with open('settings.ini', mode='w') as configfile:
                 self.write(configfile)
 
     def rpy(self, value):
         if value != '':
-
             self.out()
 
     def return_rpy(self):
@@ -41,7 +40,16 @@ class Parameters(ConfigParser):
         with open('settings.ini', 'w') as configfile:
             self.write(configfile)
 
-    #TODO: ADD CUSTOM CONDITIONS AND SUFFIXES TO .INI SO YOU CAN REPEAT IT.
+    def update_timing(self, value): #This is due to some refactoring, v4 and beyond.
+        if self.if_num(value):
+            self.set('Timing', 'DefaultTiming', value)
+            self.write_ini()
+
+    def write_ini(self):
+        with open('settings.ini', 'w') as configfile:
+            self.write(configfile)
+
+    # TODO: ADD CUSTOM CONDITIONS AND SUFFIXES TO .INI SO YOU CAN REPEAT IT. (v4...)
     def custom_params(self, alt, cnd):
         if not self.has_section('Suffixes'):
             self.add_section('Suffixes')
@@ -51,3 +59,9 @@ class Parameters(ConfigParser):
             self.add_section('Conditions')
         for obj in cnd:
             pass
+
+    def if_num(self, value):
+        try:
+            return float(value)
+        except ValueError:
+            return False

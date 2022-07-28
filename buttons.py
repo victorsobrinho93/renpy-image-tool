@@ -4,9 +4,6 @@ from preview import Preview
 from pathlib import Path
 from paths import Paths
 
-
-# import pyglet
-# pyglet.font.add_file("segoe.ttf")
 # TODO: Output should be it's own thing. V4...
 
 class Buttons(Frame):
