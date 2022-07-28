@@ -46,7 +46,7 @@ class Alternative(Frame):
         self.grid(row=1, column=0, sticky=W, padx=(20, 0))
 
     def add_alternative(self):
-        self.alt_list.append(AlternativeObject(self, scene_name=self.name))
+        self.alt_list.append(AlternativeObject(self, scene_name=self.name, alt_list=self.alt_list))
         self.alt_list[-1].place_object(self.bar_row.get())
         self.grid_update()
 
@@ -73,9 +73,10 @@ class Alternative(Frame):
 
 
 class AlternativeObject(Frame):
-    def __init__(self, frame, scene_name):
+    def __init__(self, frame, scene_name, alt_list):
         super().__init__(frame)
         self.name = scene_name
+        self.parent = alt_list
         self.play_button = PhotoImage(file="play_button.png")
         self.delete_button = PhotoImage(file="close_button.png")
         self.attr = (
@@ -94,12 +95,18 @@ class AlternativeObject(Frame):
     def delete_object(self):
         for widget in self.attr:
             widget.grid_forget()
+        self.parent.remove(self)
 
     def return_values(self):
         # This can be improved for readability
         if self.attr[1].get():
             if self.if_num(self.attr[3].get()):
                 return self.attr[1].get(), self.attr[3].get()
+
+    def __repr__(self):
+        if self.name.get() == '' or self.attr[1].get() == '':
+            return ''
+        return f"{self.name.get()}_{self.attr[1].get()}"
 
     def if_num(self, num):
         try:

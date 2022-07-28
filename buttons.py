@@ -18,7 +18,7 @@ class Buttons(Frame):
         Button(self, text='Open File', command=self.open_file).grid(column=0, row=0, sticky='NE')
         Button(self, text="Select Frames", command=self.add_images).grid(column=0, row=1, sticky="NE")
         self.preview = Button(self, text='Preview Scene', command=self.preview_scene, state=DISABLED)
-        self.output = Button(self, text='Create Scene', command=self.create_scene, state=DISABLED)
+        self.output = Button(self, text='Write', command=self.create_scene, state=DISABLED)
         for child in self.winfo_children():
             child.grid(pady=(5, 0), padx=(30, 10), sticky=NE)
 
@@ -33,7 +33,7 @@ class Buttons(Frame):
         self.alt_switch = alt.output_alternative
         # ------- Conditionals aliases ---------------
         self.cnd = cnd.cnd_list
-        self.cnd_name = cnd.name
+        self.cnd_name = cnd.conditional_name
         self.cnd_switch = cnd.output_cswitch
 
         # ? Tracers // Watchers:
@@ -84,7 +84,7 @@ class Buttons(Frame):
         preview.mainloop()
 
     def create_scene(self):
-        if not self.suffix_check.get() and not self.duplicate(self.scene_name.get()):
+        if not self.suffix_check.get():
             self.output_scene()
         if self.alt_switch.get() == '1':
             self.output_alternative()
@@ -93,12 +93,13 @@ class Buttons(Frame):
         self.read_file()
 
     def output_scene(self):
-        with open(self.rpy_file, mode="a+") as rpy:
-            rpy.write(f"image {self.scene_name.get()}:\n")
-            for frame in self.image_files:
-                rpy.write(f"    \"{Path(frame).stem}\"\n"
-                          f"    {self.timing.get()}\n")
-            rpy.write("    repeat\n\n")
+        if not self.duplicate(self.scene_name.get()):
+            with open(self.rpy_file, mode="a+") as rpy:
+                rpy.write(f"image {self.scene_name.get()}:\n")
+                for frame in self.image_files:
+                    rpy.write(f"    \"{Path(frame).stem}\"\n"
+                              f"    {self.timing.get()}\n")
+                rpy.write("    repeat\n\n")
 
     def output_alternative(self):
         with open(self.rpy_file, mode='a+') as rpy:
@@ -117,12 +118,15 @@ class Buttons(Frame):
     def output_conditionals(self):
         with open(self.rpy_file, mode="a+") as rpy:
             if self.cnd:
-                rpy.write(f"image {self.cnd_name} = ConditionSwitch(\n")
+                valid = []
                 for var in self.cnd:
-                    rpy.write(
-                        f"    \"{var.return_condition()}\", \"{var.return_scene()}\",\n"
-                    )
-                rpy.write(")\n\n")
+                    if var.return_condition() and var.return_scene():
+                        valid.append(f"    \"{var.return_condition()}\", \"{var.return_scene()}\",\n")
+                if valid:
+                    rpy.write(f"image {self.cnd_name.get()} = ConditionSwitch(\n")
+                    for var in valid:
+                        rpy.write(var)
+                    rpy.write(")\n\n")
 
     def switches(self, *args):
         """Enable or enable buttons and functionality"""
