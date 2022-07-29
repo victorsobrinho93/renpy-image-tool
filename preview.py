@@ -6,7 +6,7 @@ from itertools import cycle
 class Preview(Toplevel):
     def __init__(self, image_list, timing):
         super().__init__()
-        self.title("Ren'py Assistant Scene Preview (Debug)")
+        self.title("Animation Preview")
         self.iconbitmap("icon.ico")
         self.frames = cycle(ImageTk.PhotoImage(Image.open(frame)) for frame in image_list)
         self.timing = int(float(timing.get()) * 1000)

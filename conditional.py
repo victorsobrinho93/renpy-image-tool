@@ -54,6 +54,7 @@ class Conditional(Frame):
             self.add_condition()
         for (string, condition) in zip(valid, self.cnd_list):
             condition.insert(string)
+        valid.clear()
 
     def grid_update(self, *args):
         if self.output_cswitch.get():
@@ -67,8 +68,7 @@ class Conditional(Frame):
             for widget in self.winfo_children():
                 if widget.winfo_class() != "Checkbutton":
                     widget.grid_forget()
-            for var in self.cnd_list:
-                self.cnd_list.remove(var)
+            self.cnd_list.clear()
 
 
 class Condition(Frame):

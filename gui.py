@@ -13,7 +13,7 @@ class GUI(Tk):
         super().__init__()
         self.buttons = None
         self.alt_scenes = None
-        self.title("Ren'py Assistant 1.0")
+        self.title("Ren'py Image Tool")
         self.iconbitmap('./icon.ico')
         self.resizable(False, False)
 

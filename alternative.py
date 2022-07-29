@@ -60,8 +60,7 @@ class Alternative(Frame):
             for widget in self.winfo_children():
                 if widget.winfo_class() != "Checkbutton":
                     widget.grid_forget()
-            for var in self.alt_list:
-                self.alt_list.remove(var)
+            self.alt_list.clear()
             # self.add.grid_forget()
 
     def grid_update(self):
