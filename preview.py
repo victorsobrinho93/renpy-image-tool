@@ -29,11 +29,16 @@ class Preview(Toplevel):
         self.screen()
 
 
-    def screen(self):
+    def screen(self, *args):
+        try:
+            args[0].grid_forget()
+        except IndexError:
+            pass
         self.frame = next(self.frames)
-        Label(self, image=self.frame).grid(column=0, row=1, columnspan=20)
+        show = Label(self, image=self.frame)
+        show.grid(column=0, row=1, columnspan=20)
         Label(self, text=f"Timing: {self.timing} ms ({'{:.2f}'.format(1000/self.timing)} fps)").grid(column=1, row=2, columnspan=5)
-        self.after(self.timing, self.screen)
+        self.after(self.timing, self.screen(show))
 
     def increase_timing(self, ms):
         self.timing += ms

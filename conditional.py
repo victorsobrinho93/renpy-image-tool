@@ -55,22 +55,6 @@ class Conditional(Frame):
         for (string, condition) in zip(valid, self.cnd_list):
             condition.insert(string)
 
-        # if len(self.cnd_list) < len(self.alt):
-        # for i in range(len(self.alt)):
-        #     self.add_condition()
-        # for (alt_n, cdn) in zip_longest((chain(self.temp, self.alt)), self.cnd_list):
-        #     try:
-        #         if isinstance(alt_n, str):
-        #             cdn.insert(alt_n)
-        #         else:
-        #             cdn.insert(repr(alt_n))
-        #     except AttributeError:
-        #         print(f"alt_n: {alt_n}, cdn: {cdn}")
-
-
-
-
-
     def grid_update(self, *args):
         if self.output_cswitch.get():
             # self.check_cswitch.config(pady=3, 5)
