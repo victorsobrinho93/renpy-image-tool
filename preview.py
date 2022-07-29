@@ -38,7 +38,7 @@ class Preview(Toplevel):
         show = Label(self, image=self.frame)
         show.grid(column=0, row=1, columnspan=20)
         Label(self, text=f"Timing: {self.timing} ms ({'{:.2f}'.format(1000/self.timing)} fps)").grid(column=1, row=2, columnspan=5)
-        self.after(self.timing, self.screen(show))
+        self.after(self.timing, lambda:self.screen(show))
 
     def increase_timing(self, ms):
         self.timing += ms
