@@ -67,6 +67,8 @@ class Conditional(Frame):
             for widget in self.winfo_children():
                 if widget.winfo_class() != "Checkbutton":
                     widget.grid_forget()
+            for var in self.cnd_list:
+                self.cnd_list.remove(var)
 
 
 class Condition(Frame):
@@ -80,7 +82,7 @@ class Condition(Frame):
             Label(frame, text="Image:"),
             Entry(frame, width=25),
             Button(frame, image=self.icon, command=self.delete_object),
-            Button(frame, text="Debug", command=self.debug)
+            # Button(frame, text="Debug", command=self.debug)
         )
 
     def insert(self, string):
