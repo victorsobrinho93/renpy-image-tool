@@ -4,10 +4,10 @@ from itertools import cycle
 
 
 class Preview(Toplevel):
-    def __init__(self, image_list, timing):
+    def __init__(self):
         super().__init__()
         self.title("Animation Preview")
-        self.iconbitmap("icon.ico")
+        self.iconbitmap("src/icon.ico")
         self.frames = cycle(ImageTk.PhotoImage(Image.open(frame)) for frame in image_list)
         self.timing = int(float(timing.get()) * 1000)
         self.output = timing

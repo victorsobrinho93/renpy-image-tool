@@ -2,13 +2,11 @@ from tkinter import *
 from tkinter import filedialog
 from preview import Preview
 from pathlib import Path
-from paths import Paths
 
-# TODO: Output should be it's own thing. V4...
 
 class Buttons(Frame):
-    def __init__(self, app, path, alt, cnd, params):
-        super().__init__(app)
+    def __init__(self, parent_frame, engine):
+        super().__init__()
         self.rpy_file = ''
         self.image_files = ''
         self.rpy_data = None
@@ -18,28 +16,6 @@ class Buttons(Frame):
         self.output = Button(self, text='Write', command=self.create_scene, state=DISABLED)
         for child in self.winfo_children():
             child.grid(pady=(5, 0), padx=(30, 10), sticky=NE)
-
-        self.ini = params
-        # --------- Paths aliases -----------
-        self.scene_name = path.scene_entry
-        self.timing = path.timing_entry
-        self.rpy_path = path.file_path
-        self.images = path.img_entry
-        # -------- Alternative aliases --------------
-        self.alt = alt.alt_list
-        self.alt_switch = alt.output_alternative
-        # ------- Conditionals aliases ---------------
-        self.cnd = cnd.cnd_list
-        self.cnd_name = cnd.conditional_name
-        self.cnd_switch = cnd.output_cswitch
-
-        # ? Tracers // Watchers:
-        path.default_timing.trace_add('write', self.switches)
-        path.image_files.trace_add('write', self.switches)
-        path.scene.trace_add('write', self.switches)
-        path.rpy_file.trace_add('write', self.switches)
-        self.suffix_check = alt.suffix
-
         self.grid(row=0, column=1)
 
     def open_file(self):

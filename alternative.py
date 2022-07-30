@@ -6,10 +6,8 @@ from preview import Preview
 
 
 class Alternative(Frame):
-    def __init__(self, app, paths, params):
-        super().__init__(app)
-        self.ini = params
-        self.name = paths.scene_entry
+    def __init__(self, parent_frame, engine):
+        super().__init__()
         self.alt = None
         self.last_row = None
         self.output_alternative = StringVar()
@@ -89,14 +87,14 @@ class AlternativeObject(Frame):
             Button(frame, image=self.play_button, state=DISABLED)
         )
 
-    def place_object(self, at):
-        for widget in self.attr:
-            widget.grid(row=at, column=self.attr.index(widget), padx=(5, 5), pady=(2, 0), sticky=E)
-
-    def delete_object(self):
-        for widget in self.attr:
-            widget.grid_forget()
-        self.parent.remove(self)
+    # def place_object(self, at):
+    #     for widget in self.attr:
+    #         widget.grid(row=at, column=self.attr.index(widget), padx=(5, 5), pady=(2, 0), sticky=E)
+    #
+    # def delete_object(self):
+    #     for widget in self.attr:
+    #         widget.grid_forget()
+    #     self.parent.remove(self)
 
     def return_values(self):
         # This can be improved for readability
@@ -109,11 +107,7 @@ class AlternativeObject(Frame):
             return ''
         return f"{self.name.get()}_{self.attr[1].get()}"
 
-    def if_num(self, num):
-        try:
-            return float(num)
-        except ValueError:
-            return False
+
 
     def alt_name(self):
         # Return scene name for auto-fill

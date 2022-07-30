@@ -1,5 +1,5 @@
 from tkinter import *
-from gui import GUI
+from user_interface import GUI
 
 #TODO: Checar se os timings são válidos (números)
 #TODO: Bloquear scene preview se o timing não for incluso, ou adicionar um timing padrão.

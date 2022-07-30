@@ -4,29 +4,24 @@ from itertools import zip_longest, chain
 
 
 class Conditional(Frame):
-    def __init__(self, app, paths, alt, params):
-        super().__init__(app)
-        self.ini = params
-        self.alt = alt.alt_list
-        self.sn = paths.scene_entry
-        self.sf_only = alt.suffix  # Suffix only enabled
-        # Band-aiding a fix for the name_entry issue
+    def __init__(self, parent_frame, engine):
+        super().__init__()
         self.n_check = False
-        self.output_cswitch = BooleanVar()
-        self.check_cswitch = Checkbutton(
+        self.conditional_enabled = BooleanVar()
+        self.enable_conditional = Checkbutton(
             self,
             text="Add ConditionalSwitch",
-            variable=self.output_cswitch,
+            variable=self.conditional_enabled,
             command=self.grid_update
         )
         self.conditional_name = StringVar()
         self.button_row = IntVar(value=2)
         self.bar_row = IntVar(value=2)
-        self.check_cswitch.deselect()
-        self.check_cswitch.grid(row=0, column=0, columnspan=2, sticky=W)
-        self.add = Button(self, text="Add condition", command=self.add_condition)
-        self.auto = Button(self, text="Auto-fill", command=self.auto_fill)
-        self.output_cswitch.trace("w", self.grid_update)
+        self.enable_conditional.deselect()
+        self.enable_conditional.grid(row=0, column=0, columnspan=2, sticky=W)
+        self.add_condition = Button(self, text="Add condition", command=self.add_condition)
+        self.auto_fill = Button(self, text="Auto-fill", command=self.auto_fill)
+        self.conditional_enabled.trace("w", self.grid_update)
         self.cnd_list = []
         self.grid(row=2, column=0, sticky=W, padx=(20, 0), pady=(3, 10))
 
@@ -57,12 +52,12 @@ class Conditional(Frame):
         valid.clear()
 
     def grid_update(self, *args):
-        if self.output_cswitch.get():
+        if self.conditional_enabled.get():
             # self.check_cswitch.config(pady=3, 5)
             if not self.n_check:
                 self.name_entry()
-            self.add.grid(row=self.button_row.get(), column=0, pady=(10, 0))
-            self.auto.grid(row=self.button_row.get(), column=1, pady=(10, 0))
+            self.add_condition.grid(row=self.button_row.get(), column=0, pady=(10, 0))
+            self.auto_fill.grid(row=self.button_row.get(), column=1, pady=(10, 0))
         else:
             self.n_check = False
             for widget in self.winfo_children():
@@ -90,15 +85,15 @@ class Condition(Frame):
         self.attr[3].delete(0, END)
         self.attr[3].insert(0, string)
 
-    def place_object(self, at):
-        # print(self.parent.index(self))
-        for widget in self.attr:
-            widget.grid(row=at, column=self.attr.index(widget), padx=(5, 5), pady=(3, 0), sticky=E)
-
-    def delete_object(self):
-        for widget in self.attr:
-            widget.grid_forget()
-        self.parent.remove(self)
+    # def place_object(self, at):
+    #     # print(self.parent.index(self))
+    #     for widget in self.attr:
+    #         widget.grid(row=at, column=self.attr.index(widget), padx=(5, 5), pady=(3, 0), sticky=E)
+    #
+    # def delete_object(self):
+    #     for widget in self.attr:
+    #         widget.grid_forget()
+    #     self.parent.remove(self)
 
     def debug(self):
         print(self.parent.index(self))
@@ -108,3 +103,5 @@ class Condition(Frame):
 
     def return_scene(self):
         return self.attr[3].get()
+
+
