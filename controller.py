@@ -3,6 +3,7 @@ from user_interface import *
 from tkinter import *
 from tkinter import filedialog
 from preview import Preview
+from tkinter import messagebox
 
 
 def is_num(num):
@@ -33,9 +34,7 @@ class Controller():
         self.suffix_only_enabled = BooleanVar()
         self.alt_scenes_enabled = BooleanVar()
         self.conditionals_enabled = BooleanVar()
-        self.scene_name.trace_add('write', self.buttons_state)
-        self.image_entry.trace_add('write', self.buttons_state)
-        self.main_timing.trace_add('write', self.buttons_state)
+
 
     def read_rpy(self):
         self.rpy_data = open(self.rpy_file.get()).read()
@@ -126,19 +125,6 @@ class Controller():
 
 
 
-    def buttons_state(self, *args):
-        try:
-            if is_num(self.main_timing.get()) and self.frames is not None:
-                if self.rpy_file.get() != '' and self.scene_name.get() != '':
-                    self.output_btn.config(state=NORMAL)
-                else:
-                    self.output_btn.config(state=DISABLED)
-                self.preview_btn.config(state=NORMAL)
-                return
-            else:
-                self.preview_btn.config(state=DISABLED)
-                self.output_btn.config(state=DISABLED)
-        except AttributeError:
-            pass
+
 
 
