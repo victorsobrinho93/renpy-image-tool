@@ -15,6 +15,7 @@ class GUI(Tk):
 
         self.controller = Controller()
         self.file_entry = FileEntry(self, self.controller)
+        # self.action_buttons = Buttons(self, self.controller)
         # self.alternative = Alternative(self, self.controller)
         # self.conditional = Conditional(self, self.controller)
-        # self.buttons = Buttons(self, self.controller)
+        self.buttons = Buttons(self, self.controller)

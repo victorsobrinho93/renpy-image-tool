@@ -1,8 +1,11 @@
 from configuration import *
 from user_interface import *
+from tkinter import *
+from tkinter import filedialog
+from preview import Preview
 
 
-def if_num(self, num):
+def is_num(num):
     try:
         return float(num)
     except ValueError:
@@ -15,3 +18,127 @@ class Controller():
         self.config = Configuration(self)
         self.alternative_objects = []
         self.conditional_objects = []
+
+        self.rpy_file = StringVar()
+        self.scene_name = StringVar()
+
+        self.image_entry = StringVar()
+
+        self.main_timing = StringVar()
+
+        self.preview_btn = None
+        self.output_btn = None
+        self.rpy_data = None
+        self.frames = None
+        self.suffix_only_enabled = BooleanVar()
+        self.alt_scenes_enabled = BooleanVar()
+        self.conditionals_enabled = BooleanVar()
+        self.scene_name.trace_add('write', self.buttons_state)
+        self.image_entry.trace_add('write', self.buttons_state)
+        self.main_timing.trace_add('write', self.buttons_state)
+
+    def read_rpy(self):
+        self.rpy_data = open(self.rpy_file.get()).read()
+
+    def open_rpy(self):
+        self.rpy_file.set(filedialog.askopenfilename(initialdir=self.config['Files']['RpyDirectory'],
+                                                     title="Select *.rpy file",
+                                                     filetypes=(("Ren'py file", "*.rpy"),
+                                                                ("All files", "*.*")))
+                          )
+        if Path(self.rpy_file.get()).suffix == '.rpy':
+            self.read_rpy()
+            self.config.set_('Files', 'RpyFile', self.rpy_file.get())
+            self.config.set_('Files', 'RpyDirectory', str(Path(self.rpy_file.get()).parent))
+
+    def select_frames(self):
+        def format_insert():
+            insert = ''
+            for file in self.frames:
+                insert += f"\"{Path(file).stem}\", "
+            self.image_entry.set(insert)
+
+        self.frames = filedialog.askopenfilenames(initialdir=self.config['Files']['ImagesDirectory'],
+                                                  title="Select animation frames",
+                                                  filetypes=(("Images", "*.png *.jpg *.webp"),
+                                                             ("All files", "*.*")))
+
+        format_insert()
+        try:
+            if Path(self.frames[0]).parent.is_dir():
+                directory = str(Path(self.frames[0]).parent)
+                self.config.set_('Files', 'ImagesDirectory', directory)
+        except IndexError:
+            pass
+
+    def preview_scene(self, timing):
+        preview = Preview(self.frames, timing)
+        preview.player()
+        preview.mainloop()
+
+    def output(self):
+        if not self.suffix_only_enabled.get():
+            self.output_scene()
+        if self.alt_scenes_enabled.get():
+            self.output_alternative()
+        if self.conditionals_enabled.get():
+            self.output_conditionals()
+        self.read_rpy()
+
+    def output_scene(self):
+        if not self.duplicate(self.scene_name.get()):
+            with open(self.rpy_file.get(), mode="a+") as rpy:
+                rpy.write(f"image {self.scene_name.get()}:\n")
+                for frame in self.frames:
+                    rpy.write(f"    \"{Path(frame).stem}\"\n"
+                              f"    {self.main_timing.get()}\n")
+                rpy.write("    repeat\n\n")
+
+    def output_alternative(self):
+        with open(self.rpy_file.get(), mode='a+') as rpy:
+            for var in self.alternative_objects:
+                data = var.return_values()
+                try:
+                    if not self.duplicate(f"{self.scene_name.get()}_{data[0]}"):
+                        rpy.write(f"image {self.scene_name.get()}_{data[0]}:\n")
+                        for frame in self.frames:
+                            rpy.write(f"    \"{Path(frame).stem}\"\n"
+                                      f"    {data[1]}\n")
+                        rpy.write("    repeat\n\n")
+                except TypeError:
+                    pass
+
+    def output_conditionals(self):
+        with open(self.rpy_file.get(), mode="a+") as rpy:
+            if self.conditional_objects:
+                valid = []
+                for var in self.conditional_objects:
+                    if var.return_condition() and var.return_scene():
+                        valid.append(f"    \"{var.return_condition()}\", \"{var.return_scene()}\",\n")
+                if valid:
+                    rpy.write(f"image {self.cnd_name.get()} = ConditionSwitch(\n")
+                    for var in valid:
+                        rpy.write(var)
+                    rpy.write(")\n\n")
+
+    def duplicate(self, image_name):
+        return image_name in self.rpy_data
+
+
+
+    def buttons_state(self, *args):
+        try:
+            if is_num(self.main_timing.get()) and self.frames is not None:
+                if self.rpy_file.get() != '' and self.scene_name.get() != '':
+                    self.output_btn.config(state=NORMAL)
+                else:
+                    self.output_btn.config(state=DISABLED)
+                self.preview_btn.config(state=NORMAL)
+                return
+            else:
+                self.preview_btn.config(state=DISABLED)
+                self.output_btn.config(state=DISABLED)
+        except AttributeError:
+            pass
+
+

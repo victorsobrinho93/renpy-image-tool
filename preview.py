@@ -4,7 +4,7 @@ from itertools import cycle
 
 
 class Preview(Toplevel):
-    def __init__(self):
+    def __init__(self, timing):
         super().__init__()
         self.title("Animation Preview")
         self.iconbitmap("src/icon.ico")
