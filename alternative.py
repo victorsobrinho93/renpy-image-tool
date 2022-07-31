@@ -25,8 +25,6 @@ class Alternative(Frame):
         self.filter_no_suffix.deselect()
         self.filter_no_suffix.grid(column=3, row=0, sticky=W, columnspan=2, pady=(5, 5))
 
-
-
         self.bar_row = IntVar(value=1)
         self.button_row = IntVar(value=2)
 

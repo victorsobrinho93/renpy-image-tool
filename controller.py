@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import filedialog
+from tkinter import messagebox
 
 from configuration import *
 from preview import Preview
@@ -81,15 +82,26 @@ class Controller():
                     rpy.write(f"    \"{Path(frame).stem}\"\n"
                               f"    {self.main_timing.get()}\n")
                 rpy.write("    repeat\n\n")
+        else:
+            messagebox.showerror('Duplicate found', f'There is another scene named {self.scene_name.get()}')
 
     #? As it is right now, you can have duplicates if you input them at the same time,
     def output_alternative(self):
         with open(self.rpy_file.get(), mode='a+') as rpy:
+            self.read_rpy()
+            valid = []
             for var in self.alt_entries:
-                self.read_rpy()
+                if self.duplicate(repr(var)):
+                    messagebox.showerror('Duplicate found', f'There is another scene named {repr(var)}')
+                    return
+                if repr(var) in valid:
+                    messagebox.showerror("Error", f"Duplicated suffix ({var.suffix()})")
+                    return
+                valid.append(repr(var))
+            for var in self.alt_entries:
                 try:
-                    if not self.duplicate(repr(var)) and repr(var) != '' and self.is_num(var.timing()):
-                        print(repr(var))
+                    if repr(var) != '' and self.is_num(var.timing()):
+                        # print(repr(var))
                         rpy.write(f"image {repr(var)}:\n")
                         for frame in self.frames:
                             rpy.write(f"    \"{Path(frame).stem}\"\n"
@@ -112,7 +124,7 @@ class Controller():
                     rpy.write(")\n\n")
 
     def duplicate(self, image_name):
-        return image_name in self.rpy_data
+        return f"image {image_name}:" in self.rpy_data
 
     @staticmethod
     def is_num(num):
