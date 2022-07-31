@@ -1,35 +1,21 @@
-import string
 from tkinter import *
-# from buttons import Buttons
-from PIL import ImageTk, Image
-from random import choices
-from string import ascii_lowercase as letters
-from string import digits as digits
-
-from preview import Preview
 
 
 class Alternative(Frame):
     def __init__(self, parent_frame, controller):
         super().__init__()
         self.controller = controller
-        # self.parent = parent_frame
         self.alt_entries = controller.alt_entries
         self.conf = controller.config
-        # self.output_alternative = StringVar()
         self.enable_alternatives = Checkbutton(
             self,
             text="Alternative timings",
-            # command=lambda: print(self.filter_no_suffix.grid_info()['row']),
             variable=self.controller.alt_scenes_enabled,
-            # command=lambda: print("Nothing for now")
         )
         self.enable_alternatives.deselect()
         self.enable_alternatives.grid(column=0, row=0, sticky="w", columnspan=2, pady=(5, 5))
         self.controller.alt_scenes_enabled.trace_add('write', self.alternative_options)
 
-        # Giving the user the choice to only output suffixed scenes
-        # self.suffix = BooleanVar()
         self.filter_no_suffix = Checkbutton(
             self,
             text="Suffixed only",
@@ -39,15 +25,12 @@ class Alternative(Frame):
         self.filter_no_suffix.deselect()
         self.filter_no_suffix.grid(column=3, row=0, sticky=W, columnspan=2, pady=(5, 5))
 
-        # self.alt_list = []
+
 
         self.bar_row = IntVar(value=1)
         self.button_row = IntVar(value=2)
 
         self.add_entry = Button(self, text="Add alternative", command=self.add_alternative)
-        # self.add.grid(row=self.row.get() + 1, column=0, sticky=W, pady=(5, 5))
-
-        # self.output_alternative.trace("w", self.alt_enabled)
         self.columnconfigure(0, weight=1)
         self.grid(row=1, column=0, sticky=W, padx=(20, 0))
 
@@ -71,7 +54,8 @@ class Alternative(Frame):
             self.controller.alternative_objects.clear()
             self.bar_row.set(value=1)
             self.button_row.set(value=2)
-            # This is going to clear the list when I uncheck the option, I might change this once the rebuilding is done.
+            # This is going to clear the list when I uncheck the option,
+            # I might change this once the rebuilding is done.
 
     def update_grid(self):
         self.add_entry.grid(row=self.button_row.get(), column=0, sticky=W, pady=(15, 0))
@@ -84,7 +68,7 @@ class AlternativeEntry(Frame):
         super().__init__()
         self.controller = controller
         # self.entry_id = ''.join(choices(letters + digits, k=20))
-        #I'm aware I'm overcomplicating things. But I'm trying something different.
+        # I'm aware I'm overcomplicating things. But I'm trying something different.
         self.play_button = PhotoImage(file="src/play_button.png")
         self.delete_button = PhotoImage(file="src/close_button.png")
         self.alt_timing = StringVar()
@@ -108,8 +92,6 @@ class AlternativeEntry(Frame):
             self.attr[5].config(state=NORMAL)
         else:
             self.attr[5].config(state=DISABLED)
-
-
 
     def place(self, at):
         for widget in self.attr:

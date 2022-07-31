@@ -1,8 +1,4 @@
 from tkinter import *
-from tkinter import filedialog
-from preview import Preview
-from pathlib import Path
-from controller import is_num
 
 
 class Buttons(Frame):
@@ -15,7 +11,7 @@ class Buttons(Frame):
         Button(self, text="Select Frames", command=self.controller.select_frames).grid(column=0, row=1, sticky="NE")
         self.preview_btn = Button(self,
                                   text='Preview Scene',
-                                  command=lambda: self.controller.preview_scene(self.controller.main_timing.get()),
+                                  command=lambda: self.controller.preview_scene(self.controller.main_timing),
                                   state=DISABLED)
         # self.controller.preview_btn = self.preview
         self.output_btn = Button(self,
@@ -35,7 +31,7 @@ class Buttons(Frame):
 
     def set_state(self, *args):
         try:
-            if is_num(self.controller.main_timing.get()) and self.controller.frames is not None:
+            if self.controller.is_num(self.controller.main_timing.get()) and self.controller.frames is not None:
                 if self.controller.rpy_file.get() != '' and self.controller.scene_name.get() != '':
                     self.output_btn.config(state=NORMAL)
                 else:

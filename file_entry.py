@@ -24,7 +24,6 @@ class FileEntry(Frame):
         self.timing_entry = Entry(self, width=5, textvariable=self.controller.main_timing)
         self.timing_entry.grid(row=1, column=3, sticky=W, padx=(5, 15))
         self.timing_entry.insert(0, self.conf.timing_insert())
-
         # Select images
         self.images_var = StringVar()
         Label(self, text='Frames: ').grid(row=2, column=0, sticky="W")

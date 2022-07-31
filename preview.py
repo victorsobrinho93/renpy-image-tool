@@ -4,13 +4,14 @@ from itertools import cycle
 
 
 class Preview(Toplevel):
-    def __init__(self, timing):
+    def __init__(self, controller, timing):
         super().__init__()
+        self.controller = controller
         self.title("Animation Preview")
         self.iconbitmap("src/icon.ico")
-        self.frames = cycle(ImageTk.PhotoImage(Image.open(frame)) for frame in image_list)
+        self.frames = cycle(ImageTk.PhotoImage(Image.open(frame)) for frame in self.controller.frames)
         self.timing = int(float(timing.get()) * 1000)
-        self.output = timing
+        # self.output = timing
 
     def player(self):
 

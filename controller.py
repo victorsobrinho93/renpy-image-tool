@@ -1,20 +1,8 @@
-from configuration import *
-from user_interface import *
 from tkinter import *
-from tkinter import ttk
-from tkinter import Tk
 from tkinter import filedialog
+
+from configuration import *
 from preview import Preview
-# from alternative import AlternativeEntry
-from tkinter import messagebox
-from time import sleep
-
-
-def is_num(num):
-    try:
-        return float(num)
-    except ValueError:
-        return False
 
 
 class Controller():
@@ -72,7 +60,7 @@ class Controller():
             pass
 
     def preview_scene(self, timing):
-        preview = Preview(self.frames, timing)
+        preview = Preview(self, timing)
         preview.player()
         preview.mainloop()
 
@@ -94,21 +82,21 @@ class Controller():
                               f"    {self.main_timing.get()}\n")
                 rpy.write("    repeat\n\n")
 
+    #? As it is right now, you can have duplicates if you input them at the same time,
     def output_alternative(self):
         with open(self.rpy_file.get(), mode='a+') as rpy:
             for var in self.alt_entries:
                 self.read_rpy()
-                if not self.duplicate(repr(var)):
-                    try:
-                        if repr(var) != '' and is_num(var.timing()):
-                            print(repr(var))
-                            rpy.write(f"image {repr(var)}:\n")
-                            for frame in self.frames:
-                                rpy.write(f"    \"{Path(frame).stem}\"\n"
-                                          f"    {var.timing()}\n")
-                            rpy.write("    repeat\n\n")
-                    except TypeError:
-                        pass
+                try:
+                    if not self.duplicate(repr(var)) and repr(var) != '' and self.is_num(var.timing()):
+                        print(repr(var))
+                        rpy.write(f"image {repr(var)}:\n")
+                        for frame in self.frames:
+                            rpy.write(f"    \"{Path(frame).stem}\"\n"
+                                      f"    {var.timing()}\n")
+                        rpy.write("    repeat\n\n")
+                except TypeError:
+                    pass
 
     def output_conditionals(self):
         with open(self.rpy_file.get(), mode="a+") as rpy:
