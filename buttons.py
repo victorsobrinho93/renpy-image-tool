@@ -1,5 +1,6 @@
 from tkinter import *
-
+from tkinter import ttk
+import sv_ttk
 
 class Buttons(Frame):
     def __init__(self, parent_frame, controller):
@@ -7,17 +8,19 @@ class Buttons(Frame):
         self.controller = controller
         self.conf = controller.config
 
-        Button(self, text='Open File', command=self.controller.open_rpy).grid(column=0, row=0, sticky='NE')
-        Button(self, text="Select Frames", command=self.controller.select_frames).grid(column=0, row=1, sticky="NE")
-        self.preview_btn = Button(self,
+        ttk.Button(self, text='Open File', command=self.controller.open_rpy).grid(column=0, row=0, sticky='NE', ipadx=7)
+        ttk.Button(self, text="Select Frames", command=self.controller.select_frames).grid(column=0, row=1, sticky="NE", ipadx=4)
+        self.preview_btn = ttk.Button(self,
                                   text='Preview Scene',
                                   command=lambda: self.controller.preview_scene(self.controller.main_timing),
                                   state=DISABLED)
+        self.preview_btn.grid(column=0, row=2, sticky=NE, ipadx=3)
         # self.controller.preview_btn = self.preview
-        self.output_btn = Button(self,
+        self.output_btn = ttk.Button(self,
                                  text='Write',
                                  command=self.controller.output,
                                  state=DISABLED)
+        self.output_btn.grid(column=0, row=3, sticky=NE, ipadx=7)
         # self.controller.output_btn = self.output
 
         for child in self.winfo_children():

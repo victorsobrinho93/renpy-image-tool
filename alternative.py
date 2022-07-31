@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 
 
 class Alternative(Frame):
@@ -7,28 +8,28 @@ class Alternative(Frame):
         self.controller = controller
         self.alt_entries = controller.alt_entries
         self.conf = controller.config
-        self.enable_alternatives = Checkbutton(
+        self.enable_alternatives = ttk.Checkbutton(
             self,
             text="Alternative timings",
             variable=self.controller.alt_scenes_enabled,
         )
-        self.enable_alternatives.deselect()
-        self.enable_alternatives.grid(column=0, row=0, sticky="w", columnspan=2, pady=(5, 5))
+        self.enable_alternatives.selection_clear()
+        self.enable_alternatives.grid(column=0, row=0, sticky="w", columnspan=3, pady=(5, 5))
         self.controller.alt_scenes_enabled.trace_add('write', self.alternative_options)
 
-        self.filter_no_suffix = Checkbutton(
+        self.filter_no_suffix = ttk.Checkbutton(
             self,
             text="Suffixed only",
             variable=self.controller.suffix_only_enabled,
             state=DISABLED
         )
-        self.filter_no_suffix.deselect()
-        self.filter_no_suffix.grid(column=3, row=0, sticky=W, columnspan=2, pady=(5, 5))
+        self.filter_no_suffix.selection_clear()
+        self.filter_no_suffix.grid(column=3, row=0, sticky=W, columnspan=3, pady=(5, 5))
 
         self.bar_row = IntVar(value=1)
         self.button_row = IntVar(value=2)
 
-        self.add_entry = Button(self, text="Add alternative", command=self.add_alternative)
+        self.add_entry = ttk.Button(self, text="Add alternative", command=self.add_alternative)
         self.columnconfigure(0, weight=1)
         self.grid(row=1, column=0, sticky=W, padx=(20, 0))
 
@@ -44,12 +45,14 @@ class Alternative(Frame):
             self.add_entry.grid(row=1, column=0, sticky=W, pady=(5, 5))
             self.filter_no_suffix.config(state=NORMAL)
         else:
-            self.filter_no_suffix.deselect()
+            self.filter_no_suffix.selection_clear()
             self.filter_no_suffix.config(state=DISABLED)
             for widget in self.winfo_children():
-                if widget.winfo_class() != 'Checkbutton':
+                print(widget.winfo_class())
+                if widget.winfo_class() != 'TCheckbutton':
                     widget.grid_forget()
-            self.controller.alternative_objects.clear()
+
+            self.controller.alt_entries.clear()
             self.bar_row.set(value=1)
             self.button_row.set(value=2)
             # This is going to clear the list when I uncheck the option,
@@ -71,16 +74,16 @@ class AlternativeEntry(Frame):
         self.delete_button = PhotoImage(file="src/close_button.png")
         self.alt_timing = StringVar()
         self.attr = (
-            Label(frame, text="Suffix: "),
-            Entry(frame, width=15),
-            Label(frame, text="Timing: "),
-            Entry(frame, width=5, textvariable=self.alt_timing),
-            Button(frame, image=self.delete_button, command=self.delete),
-            Button(frame,
-                   image=self.play_button,
-                   state=DISABLED,
-                   command=lambda: self.controller.preview_scene(self.alt_timing)
-                   )
+            ttk.Label(frame, text="Suffix: "),
+            ttk.Entry(frame, width=15),
+            ttk.Label(frame, text="Timing: "),
+            ttk.Entry(frame, width=5, textvariable=self.alt_timing),
+            ttk.Button(frame, image=self.delete_button, command=self.delete),
+            ttk.Button(frame,
+                       image=self.play_button,
+                       state=DISABLED,
+                       command=lambda: self.controller.preview_scene(self.alt_timing)
+                       )
         )
 
         self.alt_timing.trace_add('write', self.enable_preview)
@@ -93,7 +96,7 @@ class AlternativeEntry(Frame):
 
     def place(self, at):
         for widget in self.attr:
-            widget.grid(row=at, column=self.attr.index(widget), padx=(5, 5), pady=(2, 0), sticky=E)
+            widget.grid(row=at, column=self.attr.index(widget), padx=(5, 5), pady=(2, 0), sticky=W)
 
     def delete(self):
         for widget in self.attr:

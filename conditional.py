@@ -1,6 +1,5 @@
 from tkinter import *
-from PIL import ImageTk, Image
-from itertools import zip_longest, chain
+from tkinter import ttk
 
 
 class Conditional(Frame):
@@ -12,26 +11,26 @@ class Conditional(Frame):
         self.conf = controller.config
 
         # self.conditional_enabled = BooleanVar()
-        self.enable_conditional = Checkbutton(
+        self.enable_conditional = ttk.Checkbutton(
             self,
             text="Add ConditionalSwitch",
             variable=self.controller.conditionals_enabled,
             command=self.update_grid
         )
-        self.enable_conditional.deselect()
+        self.enable_conditional.selection_clear()
         self.enable_conditional.grid(row=0, column=0, columnspan=2, sticky=W)
         self.controller.conditionals_enabled.trace("w", self.update_grid)
 
         self.button_row = IntVar(value=2)
         self.bar_row = IntVar(value=2)
 
-        self.add_condition_btn = Button(self, text="Add statement", command=self.add_condition)
-        self.auto_fill_btn = Button(self, text="Auto-fill", command=self.auto_fill)
+        self.add_condition_btn = ttk.Button(self, text="Add statement", command=self.add_condition)
+        self.auto_fill_btn = ttk.Button(self, text="Auto-fill", command=self.auto_fill)
         self.grid(row=2, column=0, sticky=W, padx=(20, 0), pady=(3, 10))
 
     def name_entry(self):
-        Label(self, text="Image name: ").grid(row=1, column=0)
-        name = Entry(self, width=25, textvariable=self.controller.conditional_image)
+        ttk.Label(self, text="Image name: ").grid(row=1, column=0)
+        name = ttk.Entry(self, width=25, textvariable=self.controller.conditional_image)
         name.grid(row=1, column=1, pady=(5, 5))
         # self.n_check = True
 
@@ -68,7 +67,7 @@ class Conditional(Frame):
             self.button_row.set(self.bar_row.get() + 1)
         else:
             for widget in self.winfo_children():
-                if widget.winfo_class() != "Checkbutton":
+                if widget.winfo_class() != "TCheckbutton":
                     widget.grid_forget()
             self.entries.clear()
             self.bar_row.set(2)
@@ -81,11 +80,11 @@ class Condition(Frame):
         self.icon = PhotoImage(file="src/close_button.png")
         self.controller = controller
         self.attr = (
-            Label(frame, text="Condition:"),
-            Entry(frame, width=25),
-            Label(frame, text="Image:"),
-            Entry(frame, width=25),
-            Button(frame, image=self.icon, command=self.delete),
+            ttk.Label(frame, text="Condition:"),
+            ttk.Entry(frame, width=25),
+            ttk.Label(frame, text="Image:"),
+            ttk.Entry(frame, width=25),
+            ttk.Button(frame, image=self.icon, command=self.delete),
             # Button(frame, text="Debug", command=self.debug)
         )
 

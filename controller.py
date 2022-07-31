@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
-
 from configuration import *
 from preview import Preview
 
@@ -25,6 +24,8 @@ class Controller:
         self.alt_scenes_enabled = BooleanVar()
         self.conditionals_enabled = BooleanVar()
         self.conditional_image = StringVar()
+        self.audio_file = StringVar()
+        self.audio_directory = StringVar()
 
     def read_rpy(self):
         self.rpy_data = open(self.rpy_file.get()).read()

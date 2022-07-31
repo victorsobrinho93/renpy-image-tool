@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 from PIL import ImageTk, Image
 from itertools import cycle
 
@@ -12,21 +13,24 @@ class Preview(Toplevel):
         self.frames = cycle(ImageTk.PhotoImage(Image.open(frame)) for frame in self.controller.frames)
         self.timing = int(float(timing.get()) * 1000)
         self.entry = timing
+        self.frames_per_second = IntVar()
+        self.frames_per_second.set(int(1000 / self.timing))
 
     def player(self):
-        minus_hundred = Button(self, text="-100 ms", command=lambda: self.decrease_timing(100))
-        minus_hundred.grid(row=2, column=7, sticky=E)
-        minus_ten = Button(self, text="-10 ms", command=lambda: self.decrease_timing(10))
-        minus_ten.grid(row=2, column=8, sticky=E)
-        apply_timing = Button(self, text="Apply New Timing", command=self.apply_timing)
+
+        fps = IntVar()
+        fps.set(int(1000 / self.timing))
+        apply_timing = ttk.Button(self, text="Apply New Timing", command=self.apply_timing)
         apply_timing.grid(row=2, column=9, columnspan=5, sticky=EW, padx=5)
-        plus_ten = Button(self, text="+10 ms", command=lambda: self.increase_timing(10))
-        plus_ten.grid(row=2, column=14, sticky=W)
-        plus_hundred = Button(self, text="+100 ms", command=lambda: self.increase_timing(100))
-        plus_hundred.grid(row=2, column=15, sticky=W)
-        close = Button(self, text="Close Window", command=lambda: self.destroy())
+        frames_per_second_slider = ttk.Scale(self, from_=1, to=60, orient=HORIZONTAL, length=300,
+                                         variable=self.frames_per_second, command=self.adjust_fps)
+        frames_per_second_slider.grid(row=2, column=0)
+        close = ttk.Button(self, text="Close Window", command=lambda: self.destroy())
         close.grid(row=2, column=17, sticky=E, pady=(10, 10))
         self.screen()
+
+    def adjust_fps(self, *args):
+        self.timing = int(1000 / self.frames_per_second.get())
 
     def screen(self, *args):
         try:
@@ -36,7 +40,7 @@ class Preview(Toplevel):
         self.frame = next(self.frames)
         show = Label(self, image=self.frame)
         show.grid(column=0, row=1, columnspan=20)
-        Label(self, text=f"Timing: {self.timing} ms ({'{:.2f}'.format(1000/self.timing)} fps)").grid(column=1, row=2, columnspan=5)
+        Label(self, text=f"{self.frames_per_second.get()} FPS").grid(column=1, row=2, columnspan=1)
         self.after(self.timing, lambda:self.screen(show))
 
     def increase_timing(self, ms):
