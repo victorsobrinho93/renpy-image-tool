@@ -6,7 +6,7 @@ from configuration import *
 from preview import Preview
 
 
-class Controller():
+class Controller:
     def __init__(self):
         super().__init__()
         self.config = Configuration(self)
@@ -24,7 +24,7 @@ class Controller():
         self.suffix_only_enabled = BooleanVar()
         self.alt_scenes_enabled = BooleanVar()
         self.conditionals_enabled = BooleanVar()
-
+        self.conditional_image = StringVar()
 
     def read_rpy(self):
         self.rpy_data = open(self.rpy_file.get()).read()
@@ -85,7 +85,7 @@ class Controller():
         else:
             messagebox.showerror('Duplicate found', f'There is another scene named {self.scene_name.get()}')
 
-    #? As it is right now, you can have duplicates if you input them at the same time,
+    # ? As it is right now, you can have duplicates if you input them at the same time,
     def output_alternative(self):
         with open(self.rpy_file.get(), mode='a+') as rpy:
             self.read_rpy()
@@ -111,14 +111,21 @@ class Controller():
                     pass
 
     def output_conditionals(self):
-        with open(self.rpy_file.get(), mode="a+") as rpy:
-            if self.conditional_objects:
+        self.read_rpy()
+        if self.conditional_entries:
+            with open(self.rpy_file.get(), mode="a+") as rpy:
                 valid = []
-                for var in self.conditional_objects:
-                    if var.return_condition() and var.return_scene():
-                        valid.append(f"    \"{var.return_condition()}\", \"{var.return_scene()}\",\n")
+                for var in self.conditional_entries:
+                    if var.condition() and var.image():
+                        valid.append(f"    \"{var.condition()}\", \"{var.image()}\",\n")
                 if valid:
-                    rpy.write(f"image {self.cnd_name.get()} = ConditionSwitch(\n")
+                    cs_output = f"image {self.conditional_image.get()} = ConditionSwitch(\n"
+                    if cs_output in self.rpy_data:
+                        messagebox.showerror('Duplicated Switch',
+                                             f"There is already a ConditionSwitch named {self.conditional_image.get()}"
+                                             )
+                        return
+                    rpy.write(f"{cs_output}")
                     for var in valid:
                         rpy.write(var)
                     rpy.write(")\n\n")
@@ -132,11 +139,3 @@ class Controller():
             return float(num)
         except ValueError:
             return False
-
-
-
-
-
-
-
-

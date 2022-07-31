@@ -4,79 +4,88 @@ from itertools import zip_longest, chain
 
 
 class Conditional(Frame):
-    def __init__(self, parent_frame, engine):
+    def __init__(self, parent_frame, controller):
         super().__init__()
         self.n_check = False
-        self.conditional_enabled = BooleanVar()
+        self.controller = controller
+        self.entries = controller.conditional_entries
+        self.conf = controller.config
+
+        # self.conditional_enabled = BooleanVar()
         self.enable_conditional = Checkbutton(
             self,
             text="Add ConditionalSwitch",
-            variable=self.conditional_enabled,
-            command=self.grid_update
+            variable=self.controller.conditionals_enabled,
+            command=self.update_grid
         )
-        self.conditional_name = StringVar()
-        self.button_row = IntVar(value=2)
-        self.bar_row = IntVar(value=2)
         self.enable_conditional.deselect()
         self.enable_conditional.grid(row=0, column=0, columnspan=2, sticky=W)
-        self.add_condition = Button(self, text="Add condition", command=self.add_condition)
-        self.auto_fill = Button(self, text="Auto-fill", command=self.auto_fill)
-        self.conditional_enabled.trace("w", self.grid_update)
-        self.cnd_list = []
+        self.controller.conditionals_enabled.trace("w", self.update_grid)
+
+        self.button_row = IntVar(value=2)
+        self.bar_row = IntVar(value=2)
+
+        self.add_condition_btn = Button(self, text="Add statement", command=self.add_condition)
+        self.auto_fill_btn = Button(self, text="Auto-fill", command=self.auto_fill)
         self.grid(row=2, column=0, sticky=W, padx=(20, 0), pady=(3, 10))
 
     def name_entry(self):
         Label(self, text="Image name: ").grid(row=1, column=0)
-        name = Entry(self, width=25, textvariable=self.conditional_name)
+        name = Entry(self, width=25, textvariable=self.controller.conditional_image)
         name.grid(row=1, column=1, pady=(5, 5))
-        self.n_check = True
+        # self.n_check = True
 
-    def add_condition(self, **auto):
-        self.cnd_list.append(Condition(self, self.cnd_list))
-        self.button_row.set(self.button_row.get() + 1)
-        self.cnd_list[-1].place_object(self.bar_row.get())
-        self.bar_row.set(self.bar_row.get() + 1)
-        self.grid_update()
+    def add_condition(self):
+        statement = (Condition(self, self.controller))
+        self.entries.append(statement)
+        self.entries[-1].place(self.bar_row.get())
+        self.update_grid()
+        # self.cnd_list.append(Condition(self, self.cnd_list))
+        # self.button_row.set(self.button_row.get() + 1)
+        # self.cnd_list[-1].place_object(self.bar_row.get())
+        # self.bar_row.set(self.bar_row.get() + 1)
+        # self.grid_update()
 
     def auto_fill(self):
         valid = []
-        if not self.sf_only.get():
-            valid.append(self.sn.get())
-        for var in self.alt:
+        if not self.controller.suffix_only_enabled.get():
+            valid.append(self.controller.scene_name.get())
+        for var in self.controller.alt_entries:
             if repr(var) != '':
                 valid.append(repr(var))
-        while len(self.cnd_list) < len(valid):
+        while len(self.entries) < len(valid):
             self.add_condition()
-        for (string, condition) in zip(valid, self.cnd_list):
+        for (string, condition) in zip(valid, self.entries):
             condition.insert(string)
         valid.clear()
 
-    def grid_update(self, *args):
-        if self.conditional_enabled.get():
-            # self.check_cswitch.config(pady=3, 5)
-            if not self.n_check:
-                self.name_entry()
-            self.add_condition.grid(row=self.button_row.get(), column=0, pady=(10, 0))
-            self.auto_fill.grid(row=self.button_row.get(), column=1, pady=(10, 0))
+    def update_grid(self, *args):
+        if self.controller.conditionals_enabled.get():
+            self.name_entry()
+            self.bar_row.set(self.bar_row.get() + 1)
+            self.add_condition_btn.grid(row=self.button_row.get(), column=0, pady=(10, 0))
+            self.auto_fill_btn.grid(row=self.button_row.get(), column=1, pady=(10, 0))
+            self.button_row.set(self.bar_row.get() + 1)
         else:
-            self.n_check = False
             for widget in self.winfo_children():
                 if widget.winfo_class() != "Checkbutton":
                     widget.grid_forget()
-            self.cnd_list.clear()
+            self.entries.clear()
+            self.bar_row.set(2)
+            self.button_row.set(2)
 
 
 class Condition(Frame):
-    def __init__(self, frame, cnd_list):
+    def __init__(self, frame, controller):
         super().__init__(frame)
-        self.icon = PhotoImage(file="close_button.png")
-        self.parent = cnd_list
+        self.icon = PhotoImage(file="src/close_button.png")
+        self.controller = controller
         self.attr = (
             Label(frame, text="Condition:"),
             Entry(frame, width=25),
             Label(frame, text="Image:"),
             Entry(frame, width=25),
-            Button(frame, image=self.icon, command=self.delete_object),
+            Button(frame, image=self.icon, command=self.delete),
             # Button(frame, text="Debug", command=self.debug)
         )
 
@@ -85,23 +94,20 @@ class Condition(Frame):
         self.attr[3].delete(0, END)
         self.attr[3].insert(0, string)
 
-    # def place_object(self, at):
-    #     # print(self.parent.index(self))
-    #     for widget in self.attr:
-    #         widget.grid(row=at, column=self.attr.index(widget), padx=(5, 5), pady=(3, 0), sticky=E)
-    #
-    # def delete_object(self):
-    #     for widget in self.attr:
-    #         widget.grid_forget()
-    #     self.parent.remove(self)
+    def place(self, at):
+        for widget in self.attr:
+            widget.grid(row=at, column=self.attr.index(widget), padx=(5, 5), pady=(3, 0), sticky=E)
 
-    def debug(self):
-        print(self.parent.index(self))
+    def delete(self):
+        for widget in self.attr:
+            widget.grid_forget()
+        self.controller.conditional_entries.remove(self)
 
-    def return_condition(self):
+    # def debug(self):
+    #     print(self.parent.index(self))
+
+    def condition(self):
         return self.attr[1].get()
 
-    def return_scene(self):
+    def image(self):
         return self.attr[3].get()
-
-
