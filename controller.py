@@ -1,9 +1,13 @@
 from configuration import *
 from user_interface import *
 from tkinter import *
+from tkinter import ttk
+from tkinter import Tk
 from tkinter import filedialog
 from preview import Preview
+# from alternative import AlternativeEntry
 from tkinter import messagebox
+from time import sleep
 
 
 def is_num(num):
@@ -17,14 +21,11 @@ class Controller():
     def __init__(self):
         super().__init__()
         self.config = Configuration(self)
-        self.alternative_objects = []
-        self.conditional_objects = []
-
+        self.alt_entries = []
+        self.conditional_entries = []
         self.rpy_file = StringVar()
         self.scene_name = StringVar()
-
         self.image_entry = StringVar()
-
         self.main_timing = StringVar()
 
         self.preview_btn = None
@@ -95,17 +96,19 @@ class Controller():
 
     def output_alternative(self):
         with open(self.rpy_file.get(), mode='a+') as rpy:
-            for var in self.alternative_objects:
-                data = var.return_values()
-                try:
-                    if not self.duplicate(f"{self.scene_name.get()}_{data[0]}"):
-                        rpy.write(f"image {self.scene_name.get()}_{data[0]}:\n")
-                        for frame in self.frames:
-                            rpy.write(f"    \"{Path(frame).stem}\"\n"
-                                      f"    {data[1]}\n")
-                        rpy.write("    repeat\n\n")
-                except TypeError:
-                    pass
+            for var in self.alt_entries:
+                self.read_rpy()
+                if not self.duplicate(repr(var)):
+                    try:
+                        if repr(var) != '' and is_num(var.timing()):
+                            print(repr(var))
+                            rpy.write(f"image {repr(var)}:\n")
+                            for frame in self.frames:
+                                rpy.write(f"    \"{Path(frame).stem}\"\n"
+                                          f"    {var.timing()}\n")
+                            rpy.write("    repeat\n\n")
+                    except TypeError:
+                        pass
 
     def output_conditionals(self):
         with open(self.rpy_file.get(), mode="a+") as rpy:
@@ -122,6 +125,15 @@ class Controller():
 
     def duplicate(self, image_name):
         return image_name in self.rpy_data
+
+    @staticmethod
+    def is_num(num):
+        try:
+            return float(num)
+        except ValueError:
+            return False
+
+
 
 
 
