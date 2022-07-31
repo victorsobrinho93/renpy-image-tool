@@ -1,4 +1,8 @@
-# Ren'py Image Tool
-A little tool to make things a bit easier for VN creators.<br>
+# Ren'py Image Creation Tool
+Streamline your Ren'py VN development.<br>
+RITC is a tool intended to shorten the time spent writing (or copy-pasting) image blocks in Ren'py, and everything else that comes with it.<br>
 
-As of now you can create and output animations (ATL image blocks), as well as easily add a conditional displayable (ConditionalSwitch()) through a GUI.<br>
+<strong>Current features</strong><br>
+<strong>Scene preview:</strong> Fine-tune your image before output.<br>
+<strong>Alternative timings</strong>: Create multiple, alternatively timed scenes at once based on the same frames.<br>
+<strong>ConditionalSwitch</strong>: Easily create ConditionalSwitches off your new images.<br>
