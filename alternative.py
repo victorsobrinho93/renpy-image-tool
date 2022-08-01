@@ -14,24 +14,24 @@ class Alternative(Frame):
             variable=self.controller.alt_scenes_enabled,
         )
         self.enable_alternatives.selection_clear()
-        self.enable_alternatives.grid(column=0, row=0, sticky="w", columnspan=3, pady=(5, 5))
+        self.enable_alternatives.grid(column=0, row=0, sticky="w", columnspan=2, pady=(5, 5))
         self.controller.alt_scenes_enabled.trace_add('write', self.alternative_options)
 
-        self.filter_no_suffix = ttk.Checkbutton(
+        self.filter_suffix = ttk.Checkbutton(
             self,
             text="Suffixed only",
             variable=self.controller.suffix_only_enabled,
             state=DISABLED
         )
-        self.filter_no_suffix.selection_clear()
-        self.filter_no_suffix.grid(column=3, row=0, sticky=W, columnspan=3, pady=(5, 5))
+        self.filter_suffix.selection_clear()
+        self.filter_suffix.grid(column=2, row=0, sticky=W, columnspan=2, pady=(5, 5), padx=3)
 
         self.bar_row = IntVar(value=1)
         self.button_row = IntVar(value=2)
 
         self.add_entry = ttk.Button(self, text="Add alternative", command=self.add_alternative)
         self.columnconfigure(0, weight=1)
-        self.grid(row=1, column=0, sticky=W, padx=(20, 0))
+        self.grid(row=2, column=0, sticky=W, padx=(20, 0))
 
     def add_alternative(self):
         entry = AlternativeEntry(self, self.controller)
@@ -42,16 +42,14 @@ class Alternative(Frame):
 
     def alternative_options(self, *args):
         if self.controller.alt_scenes_enabled.get():
-            self.add_entry.grid(row=1, column=0, sticky=W, pady=(5, 5))
-            self.filter_no_suffix.config(state=NORMAL)
+            self.add_entry.grid(row=1, column=0, sticky=W, pady=(5, 5), columnspan=2)
+            self.filter_suffix.config(state=NORMAL)
         else:
-            self.filter_no_suffix.selection_clear()
-            self.filter_no_suffix.config(state=DISABLED)
+            self.filter_suffix.config(state=DISABLED)
+            self.controller.suffix_only_enabled.set(value=False)
             for widget in self.winfo_children():
-                print(widget.winfo_class())
                 if widget.winfo_class() != 'TCheckbutton':
                     widget.grid_forget()
-
             self.controller.alt_entries.clear()
             self.bar_row.set(value=1)
             self.button_row.set(value=2)
@@ -96,7 +94,7 @@ class AlternativeEntry(Frame):
 
     def place(self, at):
         for widget in self.attr:
-            widget.grid(row=at, column=self.attr.index(widget), padx=(5, 5), pady=(2, 0), sticky=W)
+            widget.grid(row=at, column=self.attr.index(widget), padx=(3,3), pady=(2, 0), sticky=W)
 
     def delete(self):
         for widget in self.attr:

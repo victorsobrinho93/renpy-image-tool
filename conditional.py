@@ -26,7 +26,7 @@ class Conditional(Frame):
 
         self.add_condition_btn = ttk.Button(self, text="Add statement", command=self.add_condition)
         self.auto_fill_btn = ttk.Button(self, text="Auto-fill", command=self.auto_fill)
-        self.grid(row=2, column=0, sticky=W, padx=(20, 0), pady=(3, 10))
+        self.grid(row=3, column=0, sticky=W, padx=(20, 0), pady=(3, 10), columnspan=2)
 
     def name_entry(self):
         ttk.Label(self, text="Image name: ").grid(row=1, column=0)

@@ -24,8 +24,11 @@ class Controller:
         self.alt_scenes_enabled = BooleanVar()
         self.conditionals_enabled = BooleanVar()
         self.conditional_image = StringVar()
+
+        self.insert_audio = BooleanVar()
         self.audio_file = StringVar()
         self.audio_directory = StringVar()
+        self.audio_timing = StringVar()
 
     def read_rpy(self):
         self.rpy_data = open(self.rpy_file.get()).read()
@@ -40,6 +43,7 @@ class Controller:
             self.read_rpy()
             self.config.set_('Files', 'RpyFile', self.rpy_file.get())
             self.config.set_('Files', 'RpyDirectory', str(Path(self.rpy_file.get()).parent))
+            self.create_rict_file()
 
     def select_frames(self):
         def format_insert():
@@ -60,6 +64,16 @@ class Controller:
                 self.config.set_('Files', 'ImagesDirectory', directory)
         except IndexError:
             pass
+
+    def select_audio(self):
+        self.audio_file.set(filedialog.askopenfilename(initialdir=self.config['Files']['AudioDirectory'],
+                                                       title="Select audio file",
+                                                       filetypes=(("Audio", "*.ogg *.mp3 *.wav *.flac"),
+                                                                  ("All files", "*.*"))))
+
+        if Path(self.audio_file.get()).is_file():
+            audio_directory = str(Path(self.audio_file.get()).parent)
+            self.config.set_('Files', 'AudioDirectory', audio_directory)
 
     def preview_scene(self, timing):
         preview = Preview(self, timing)
@@ -85,6 +99,9 @@ class Controller:
                 rpy.write("    repeat\n\n")
         else:
             messagebox.showerror('Duplicate found', f'There is another scene named {self.scene_name.get()}')
+
+    def output_audio(self):
+        pass
 
     # ? As it is right now, you can have duplicates if you input them at the same time,
     def output_alternative(self):
@@ -140,3 +157,15 @@ class Controller:
             return float(num)
         except ValueError:
             return False
+
+    def create_rict_file(self):
+        rict_script = f"{self.config.rpy_directory()}/rict_scripts.rpy"
+        if not Path(rict_script).is_file():
+            with open(f'{self.config.rpy_directory()}/rict_scripts.rpy', 'w') as script:
+                script.write(
+                    f"# This script contains all the functions used by the images made with RICT.\n"
+                    f"init -1 python:\n"
+                    f"    def sfx(trans, st, at, file):\n"
+                    f"        renpy.play(file, channel=sound)\n\n"
+
+                )
