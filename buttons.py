@@ -1,6 +1,5 @@
 from tkinter import *
 from tkinter import ttk
-import sv_ttk
 
 class Buttons(Frame):
     def __init__(self, parent_frame, controller):

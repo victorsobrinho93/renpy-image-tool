@@ -12,6 +12,8 @@ class Configuration(ConfigParser):
                 'RpyFile': '',
                 'RpyDirectory': '',
                 'ImagesDirectory': '',
+                'AudioDirectory': '',
+                'Script': ''
             }
             self['Timing'] = {
                 'DefaultTiming': '0.1',
@@ -23,6 +25,9 @@ class Configuration(ConfigParser):
         self.set(section, key, value)
         with open('settings.ini', 'w') as configfile:
             self.write(configfile)
+
+    def rpy_directory(self):
+        return self['Files']['RpyDirectory']
 
     def rpy_insert(self):
         return str(Path(self['Files']['RpyFile']).stem)
