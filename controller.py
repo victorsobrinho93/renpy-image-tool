@@ -273,7 +273,7 @@ class Controller:
                 script.write(
                     f"# This file contains all the functions used by the images made with Ren'py Image Creation Tool.\n"
                     f"# Moving or renaming this file will cause issues, if you do it while your work is in progress.\n"
-                    f"# Check for updates at (https://github.com/victorsobrinho93/renpy-image-creation-tool)"
+                    f"# Check for updates at (https://github.com/victorsobrinho93/renpy-image-creation-tool)\n\n"
                     f"init -1 python:\n"
                     f"    hello = 'there'"
 
