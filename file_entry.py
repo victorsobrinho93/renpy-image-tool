@@ -45,6 +45,7 @@ class FileEntry(Frame):
         self.grid(row=0, column=0, padx=(20, 0), sticky=W)
 
     def rpy_insert(self, *args):
+        self.rpy_entry.delete(0, END)
         self.rpy_entry.insert(0, str(Path(self.controller.rpy_file.get()).stem))
 
     def images_insert(self, *args):
