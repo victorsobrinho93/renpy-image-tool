@@ -10,7 +10,7 @@ from sound_effects import SoundEffects
 class GUI(Tk):
     def __init__(self):
         super().__init__()
-        self.title("Ren'py Image Tool 1.3")
+        self.title("Ren'py Image Tool 1.3a")
         self.iconbitmap('src/icon.ico')
         self.resizable(False, False)
 

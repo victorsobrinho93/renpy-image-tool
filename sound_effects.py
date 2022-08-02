@@ -53,8 +53,6 @@ class SoundEffects(Frame):
                                               variable=self.controller.disable_repeat)
         self.disable_repeat.grid(row=2, column=6, columnspan=2)
         self.disable_repeat.selection_clear()
-
-
         self.controller.insert_audio.trace_add('write', self.place)
         self.controller.audio_file.trace_add('write', self.entry_insert)
         self.disable_widgets()
@@ -89,7 +87,6 @@ class SoundEffects(Frame):
             print("Every other .x seconds")
             # self.st_label.configure(text="Start at timestamp")
         self.interval['state'] = 'active'
-
 
     def disable_widgets(self):
         for widget in self.winfo_children():

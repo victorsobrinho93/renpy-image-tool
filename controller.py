@@ -101,7 +101,28 @@ class Controller:
             if not self.insert_audio.get():
                 self.output_scene()
             else:
+                if not Path(self.audio_file.get()).is_file():
+                    messagebox.showerror("Invalid parameter", "Sound file was not selected.")
+                    return
+                elif not self.is_num(self.audio_start.get()):
+                    messagebox.showerror("Invalid parameter:", "Sound effect starting point is not valid or empty.")
+                    return
+                elif not self.is_num(self.audio_interval.get()):
+                    messagebox.showerror("Invalid parameter", "Sound effect interval is invalid or missing.")
+                    return
+                if self.audio_interval_option.get().lower() == 'frames':
+                    try:
+                        int(self.audio_start.get())
+                    except ValueError:
+                        messagebox.showerror("Invalid parameter", "(Frame) Starting point should be an integer.")
+                        return
+                    try:
+                        int(self.audio_interval.get())
+                    except ValueError:
+                        messagebox.showerror("Invalid parameter", "(Frame) Interval should be an integer.")
+                        return
                 self.output_sfx()
+
         if self.alt_scenes_enabled.get():
             self.output_alternative()
         if self.conditionals_enabled.get():
@@ -174,6 +195,7 @@ class Controller:
         file.write("        repeat\n\n")
 
     def sfx_function(self):
+        #TODO: CREATE A DIFFERENTLY NAMED VARIABLE IF FILENAME IS THE SAME, BUT PATH IS DIFFERENT.
         self.read_rict()
         self.audio_path.set(self.audio_file.get().split("/game")[1])
         if self.audio_path.get() in self.rict_data:
