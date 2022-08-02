@@ -10,7 +10,7 @@ RITC is a tool intended to shorten the time spent writing (or copy-pasting) imag
   <strong>ConditionalSwitch</strong>: Easily create ConditionalSwitches off your new images.<br>
   <strong>Sound effects</strong>: Insert sound effects directly into your animation loops, just select the file and set up the timing.</br>
 
-# Read
+## Read
 
   As of now this program has <strong>basic</strong> validation.</br>
   I've done what I could to stop garbage from going in, then coming out, however not everything has a feedback.</br>
