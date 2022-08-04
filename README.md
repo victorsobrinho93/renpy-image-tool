@@ -1,7 +1,11 @@
-# Ren'py Image Creation Tool
-Streamline your Ren'py VN development.<br>
-RITC is a tool intended to shorten the time spent writing (or copy-pasting) image blocks in Ren'py, and everything else that comes with it.<br>
-<strong>Currently compatible with Ren'py 8 and later versions of Ren'py 7 (Not exactly sure when it stopped being required to add the full file path).<br> Adding support for the older syntax soon.
+# RICT (Ren'py Animation Tool)
+RICT is a tool intended to shorten the time spent writing (or copy-pasting) image blocks in Ren'py,</br>
+and everything else that comes with it, by allowing users to easily create animation loops through a GUI.</br>
+
+<strong>Fully compatible with Ren'py 8+.</br></strong>
+It's mostly, entirely even, going to work with older versions as well (Especially 7.4+).</br>
+But some features, present and future, will make use of Python to get around Ren'py limitations,</br>
+and may be incompatible with Python 2.7.
 
 # Current Features
   
