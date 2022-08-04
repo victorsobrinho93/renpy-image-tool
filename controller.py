@@ -97,32 +97,31 @@ class Controller:
         preview.mainloop()
 
     def output(self):
+        if self.insert_audio.get():
+            if not Path(self.audio_file.get()).is_file():
+                messagebox.showerror("Invalid parameter", "Sound file was not selected.")
+                return
+            elif not self.is_num(self.audio_start.get()):
+                messagebox.showerror("Invalid parameter:", "Sound effect starting point is not valid or empty.")
+                return
+            elif not self.is_num(self.audio_interval.get()):
+                messagebox.showerror("Invalid parameter", "Sound effect interval is invalid or missing.")
+                return
+            if self.audio_interval_option.get().lower() == 'frames':
+                try:
+                    int(self.audio_start.get())
+                except ValueError:
+                    messagebox.showerror("Invalid parameter", "(Frame) Starting point should be an integer.")
+                    return
+                try:
+                    int(self.audio_interval.get())
+                except ValueError:
+                    messagebox.showerror("Invalid parameter", "(Frame) Interval should be an integer.")
+                    return
+            # If validated write function on rict_script.
+            self.write_sfx_function()
         if not self.suffix_only_enabled.get():
-            if not self.insert_audio.get():
-                self.output_scene()
-            else:
-                if not Path(self.audio_file.get()).is_file():
-                    messagebox.showerror("Invalid parameter", "Sound file was not selected.")
-                    return
-                elif not self.is_num(self.audio_start.get()):
-                    messagebox.showerror("Invalid parameter:", "Sound effect starting point is not valid or empty.")
-                    return
-                elif not self.is_num(self.audio_interval.get()):
-                    messagebox.showerror("Invalid parameter", "Sound effect interval is invalid or missing.")
-                    return
-                if self.audio_interval_option.get().lower() == 'frames':
-                    try:
-                        int(self.audio_start.get())
-                    except ValueError:
-                        messagebox.showerror("Invalid parameter", "(Frame) Starting point should be an integer.")
-                        return
-                    try:
-                        int(self.audio_interval.get())
-                    except ValueError:
-                        messagebox.showerror("Invalid parameter", "(Frame) Interval should be an integer.")
-                        return
-                self.output_sfx()
-
+            self.output_scene()
         if self.alt_scenes_enabled.get():
             self.output_alternative()
         if self.conditionals_enabled.get():
@@ -135,39 +134,66 @@ class Controller:
             with open(self.rpy_file.get(), mode="a+") as rpy:
                 rpy.write(f"image {self.scene_name.get()}:\n")
                 for frame in self.frames:
-                    rpy.write(f"    \"{Path(frame).stem}\"\n"
-                              f"    {self.main_timing.get()}\n")
+                    rpy.write(f"    \"{Path(frame).stem}\"\n")
+                    self.output_effect(sound_enabled=self.insert_audio.get(),
+                                       file=rpy,
+                                       current_frame=frame)
+                    rpy.write(f"    {self.main_timing.get()}\n")
                 rpy.write("    repeat\n\n")
         else:
             messagebox.showerror('Duplicate found', f'There is another scene named {self.scene_name.get()}')
 
-    def output_sfx(self):
-        self.read_rict()
-        self.sfx_function()
-        script = self.config['Files']['Script']
-        with open(self.rpy_file.get(), mode='a+') as rpy:
-            rpy.write(f"image {self.scene_name.get()}:\n")
-            if self.audio_interval_option.get().lower() == 'frames':
-                self.sfx_frames(rpy)
-            if self.audio_interval_option.get().lower() == 'seconds':
-                self.sfx_time_interval(rpy)
+    # TODO: ADD THE OPTION TO INSERT SOUND EFFECTS INTO ALTERNATIVE SCENES. (Looking at this Ima have to redo it all)
+    # if main_timing > alt_timing:
+    # timing = main / (main/alt)
+    # if main_timing < alt_timing:
+    # timing = main * (alt/main)
 
-    def sfx_frames(self, file):
-        first_inserted = False
-        sfx_at = None
-        for frame in self.frames:
-            file.write(f"    \"{Path(frame).stem}\"\n")
-            if int(self.audio_start.get()) == self.frames.index(frame) + 1:
-                first_inserted = True
-                sfx_at = self.frames.index(frame)
-                file.write(f"    function {self.sound_function.get()}\n")
-            if (first_inserted and
-                    self.step(sfx_at, self.frames.index(frame), int(self.audio_interval.get())) and
-                    not self.disable_repeat.get()):
-                file.write(f"    function {self.sound_function.get()}\n")
-                sfx_at = self.frames.index(frame)
-            file.write(f"    {self.main_timing.get()}\n")
-        file.write("    repeat\n\n")
+    def output_effect(self, file=None, sound_enabled=False, current_frame=None):
+        if sound_enabled and \
+                self.sfx_frame_validation(current_frame) and \
+                self.audio_interval_option.get().lower() == 'frames':
+            file.write(f"    function {self.sound_function.get()}\n")
+        else:
+            pass
+
+    def sfx_frame_validation(self, current_frame):
+        start = int(self.audio_start.get()) - 1
+        step = int(self.audio_interval.get())
+        if self.frames.index(current_frame) in range(start, len(self.frames), step):
+            return True
+        else:
+            return False
+
+    # def output_sfx(self, timing_var):
+    #     # timing means the timing Entry object.
+    #     self.read_rict()
+    #     self.write_sfx_function()
+    #     script = self.config['Files']['Script']
+    #     with open(self.rpy_file.get(), mode='a+') as rpy:
+    #         rpy.write(f"image {self.scene_name.get()}:\n")
+    #         if self.audio_interval_option.get().lower() == 'frames':
+    #             self.sfx_frames(rpy, timing_var)
+    #         if self.audio_interval_option.get().lower() == 'seconds':
+    #             self.sfx_time_interval(rpy)
+
+    # def sfx_frames(self, file, timing_var):
+    #     first_inserted = False
+    #     sfx_at = None
+    #     for frame in self.frames:
+    #         file.write(f"    \"{Path(frame).stem}\"\n")
+    #         if int(self.audio_start.get()) == self.frames.index(frame) + 1:
+    #             first_inserted = True
+    #             sfx_at = self.frames.index(frame)
+    #             file.write(f"    function {self.sound_function.get()}\n")
+    #         if (first_inserted and
+    #                 self.step(sfx_at, self.frames.index(frame), int(self.audio_interval.get())) and
+    #                 not self.disable_repeat.get()):
+    #             file.write(f"    function {self.sound_function.get()}\n")
+    #             sfx_at = self.frames.index(frame)
+    #         # file.write(f"    {self.main_timing.get()}\n")
+    #         file.write(f"    {timing_var.get()}\n")
+    #     file.write("    repeat\n\n")
 
     def sfx_time_interval(self, file):
         loop_duration = 0.0
@@ -194,8 +220,8 @@ class Controller:
                 break
         file.write("        repeat\n\n")
 
-    def sfx_function(self):
-        #TODO: CREATE A DIFFERENTLY NAMED VARIABLE IF FILENAME IS THE SAME, BUT PATH IS DIFFERENT.
+    def write_sfx_function(self):
+        # TODO: CREATE A DIFFERENTLY NAMED VARIABLE IF FILENAME IS THE SAME, BUT PATH IS DIFFERENT.
         self.read_rict()
         self.audio_path.set(self.audio_file.get().split("/game")[1])
         if self.audio_path.get() in self.rict_data:
@@ -230,8 +256,11 @@ class Controller:
                         # print(repr(var))
                         rpy.write(f"image {repr(var)}:\n")
                         for frame in self.frames:
-                            rpy.write(f"    \"{Path(frame).stem}\"\n"
-                                      f"    {var.timing()}\n")
+                            rpy.write(f"    \"{Path(frame).stem}\"\n")
+                            self.output_effect(file=rpy,
+                                               sound_enabled=self.insert_audio.get(),
+                                               current_frame=frame)
+                            rpy.write(f"    {var.timing()}\n")
                         rpy.write("    repeat\n\n")
                 except TypeError:
                     pass
@@ -294,6 +323,3 @@ class Controller:
             self.image_entry.set("\"DEBUG PURPOSES\"")
         else:
             messagebox.showerror("No file selected", "You must select a target .rpy file at least once.")
-
-    def step(self, last_valid, current, step):
-        return (current - step) == last_valid
