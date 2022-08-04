@@ -40,6 +40,15 @@ class Controller:
         self.disable_repeat = BooleanVar()
         self.sound_function = StringVar()
         self.legacy_syntax = BooleanVar()
+        if self.config['Parameters'].getboolean('LegacySyntax'):
+            self.legacy_syntax.set(True)
+
+
+    def legacy_config(self):
+        if self.legacy_syntax.get():
+            self.config.set_('Parameters', 'LegacySyntax', 'True')
+        else:
+            self.config.set_('Parameters', 'LegacySyntax', 'False')
 
     def read_rpy(self):
         self.rpy_data = open(self.rpy_file.get()).read()
@@ -150,11 +159,6 @@ class Controller:
         else:
             messagebox.showerror('Duplicate found', f'There is another scene named {self.scene_name.get()}')
 
-    # TODO: ADD THE OPTION TO INSERT SOUND EFFECTS INTO ALTERNATIVE SCENES. (Looking at this Ima have to redo it all)
-    # if main_timing > alt_timing:
-    # timing = main / (main/alt)
-    # if main_timing < alt_timing:
-    # timing = main * (alt/main)
     def adjust_async_timing(self, async_timing, **kw):
         main = round(float(self.main_timing.get()), 3)
         async_timing = round(float(async_timing), 3)

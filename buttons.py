@@ -26,7 +26,8 @@ class Buttons(Frame):
         ttk.Button(self, text="DEBUG", command=self.controller.debug, width=14)
         ttk.Checkbutton(self,
                         variable=self.controller.legacy_syntax,
-                        text="Legacy syntax")
+                        text="Legacy syntax",
+                        command=self.controller.legacy_config)
 
         for child in self.winfo_children():
             child.grid(pady=(5, 0), padx=(30, 10), sticky=NE)

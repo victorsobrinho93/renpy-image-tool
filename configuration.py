@@ -18,6 +18,9 @@ class Configuration(ConfigParser):
             self['Timing'] = {
                 'DefaultTiming': '0.1',
             }
+            self['Parameters'] = {
+                'LegacySyntax': 'False'
+            }
             with open('settings.ini', mode='w') as configfile:
                 self.write(configfile)
 
