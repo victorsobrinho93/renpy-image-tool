@@ -133,13 +133,16 @@ class Controller:
         if not self.duplicate(self.scene_name.get()):
             with open(self.rpy_file.get(), mode="a+") as rpy:
                 rpy.write(f"image {self.scene_name.get()}:\n")
-                for frame in self.frames:
-                    rpy.write(f"    \"{Path(frame).stem}\"\n")
-                    self.output_effect(sound_enabled=self.insert_audio.get(),
-                                       file=rpy,
-                                       current_frame=frame)
-                    rpy.write(f"    {self.main_timing.get()}\n")
-                rpy.write("    repeat\n\n")
+                if self.insert_audio.get() and self.async_output():
+                    self.sfx_async_output(file=rpy, timing_var=self.main_timing.get())
+                else:
+                    for frame in self.frames:
+                        rpy.write(f"    \"{Path(frame).stem}\"\n")
+                        self.output_effect(sound_enabled=self.insert_audio.get(),
+                                           file=rpy,
+                                           current_frame=frame)
+                        rpy.write(f"    {self.main_timing.get()}\n")
+                    rpy.write("    repeat\n\n")
         else:
             messagebox.showerror('Duplicate found', f'There is another scene named {self.scene_name.get()}')
 
@@ -148,6 +151,25 @@ class Controller:
     # timing = main / (main/alt)
     # if main_timing < alt_timing:
     # timing = main * (alt/main)
+    def adjust_async_timing(self, async_timing, **kw):
+        main = round(float(self.main_timing.get()), 3)
+        async_timing = round(float(async_timing), 3)
+        start_point = round(float(self.audio_start.get()), 3)
+        interval = round(float(self.audio_interval.get()), 3)
+        if kw.get('adjust_start'):
+            if main > async_timing:
+                return round(start_point / (main / async_timing), 3)
+            elif main == async_timing:
+                return round(float(self.audio_start.get()), 3)
+            else:
+                return round(start_point * (async_timing / main), 3)
+        else:
+            if main > async_timing:
+                return round(interval / (main / async_timing), 3)
+            elif main == async_timing:
+                return round(float(self.audio_interval.get()), 3)
+            else:
+                return round(interval * (async_timing / main), 3)
 
     def output_effect(self, file=None, sound_enabled=False, current_frame=None):
         if sound_enabled and \
@@ -165,60 +187,36 @@ class Controller:
         else:
             return False
 
-    # def output_sfx(self, timing_var):
-    #     # timing means the timing Entry object.
-    #     self.read_rict()
-    #     self.write_sfx_function()
-    #     script = self.config['Files']['Script']
-    #     with open(self.rpy_file.get(), mode='a+') as rpy:
-    #         rpy.write(f"image {self.scene_name.get()}:\n")
-    #         if self.audio_interval_option.get().lower() == 'frames':
-    #             self.sfx_frames(rpy, timing_var)
-    #         if self.audio_interval_option.get().lower() == 'seconds':
-    #             self.sfx_time_interval(rpy)
-
-    # def sfx_frames(self, file, timing_var):
-    #     first_inserted = False
-    #     sfx_at = None
-    #     for frame in self.frames:
-    #         file.write(f"    \"{Path(frame).stem}\"\n")
-    #         if int(self.audio_start.get()) == self.frames.index(frame) + 1:
-    #             first_inserted = True
-    #             sfx_at = self.frames.index(frame)
-    #             file.write(f"    function {self.sound_function.get()}\n")
-    #         if (first_inserted and
-    #                 self.step(sfx_at, self.frames.index(frame), int(self.audio_interval.get())) and
-    #                 not self.disable_repeat.get()):
-    #             file.write(f"    function {self.sound_function.get()}\n")
-    #             sfx_at = self.frames.index(frame)
-    #         # file.write(f"    {self.main_timing.get()}\n")
-    #         file.write(f"    {timing_var.get()}\n")
-    #     file.write("    repeat\n\n")
-
-    def sfx_time_interval(self, file):
+    def sfx_async_output(self, file, timing_var):
+        # print(f"[DEBUG] timing_var: {timing_var}")
         loop_duration = 0.0
-        interval = round(float(self.audio_interval.get()))
-        print(f"[debug]Interval: {interval}")
+        starting_point = self.adjust_async_timing(timing_var, adjust_start=True)
+        interval = self.adjust_async_timing(timing_var)
+        # print(f"[DEBUG] Adjusted Interval: {interval}")
         file.write("    parallel:\n")
         for frame in self.frames:
-            loop_duration += float(self.main_timing.get())
+            loop_duration += round(float(timing_var), 3)
             file.write(f"        \"{Path(frame).stem}\"\n")
-            file.write(f"        {self.main_timing.get()}\n")
+            file.write(f"        {timing_var}\n")
         file.write("        repeat\n")
 
         file.write("    parallel:\n")
-        file.write(f"        {self.audio_start.get()}\n")
-        loop_duration -= interval
+        file.write(f"        {starting_point}\n")
+        loop_duration -= starting_point
         while loop_duration > 0:
-            print(loop_duration)
-            file.write(f"        function {self.sound_function.get()}\n")
-            if loop_duration >= interval:
+            if round(loop_duration, 3) >= round(interval, 3):
+                # print(f"[DEBUG] Current loop duration: {round(loop_duration, 3)}")
+                file.write(f"        function {self.sound_function.get()}\n")
                 file.write(f"        {interval}\n")
                 loop_duration -= interval
+                # print(f"[DEBUG] loop duration after subtraction: {round(loop_duration, 3)}")
             else:
-                file.write(f"        {round(loop_duration, 2)}\n")
+                file.write(f"        {round(loop_duration, 3)}\n")
                 break
         file.write("        repeat\n\n")
+
+    def async_output(self):
+        return self.audio_interval_option.get() == "Seconds"
 
     def write_sfx_function(self):
         # TODO: CREATE A DIFFERENTLY NAMED VARIABLE IF FILENAME IS THE SAME, BUT PATH IS DIFFERENT.
@@ -255,13 +253,17 @@ class Controller:
                     if repr(var) != '' and self.is_num(var.timing()):
                         # print(repr(var))
                         rpy.write(f"image {repr(var)}:\n")
-                        for frame in self.frames:
-                            rpy.write(f"    \"{Path(frame).stem}\"\n")
-                            self.output_effect(file=rpy,
-                                               sound_enabled=self.insert_audio.get(),
-                                               current_frame=frame)
-                            rpy.write(f"    {var.timing()}\n")
-                        rpy.write("    repeat\n\n")
+                        if self.insert_audio.get() and self.async_output():
+                            self.sfx_async_output(file=rpy,
+                                                  timing_var=var.timing())
+                        else:
+                            for frame in self.frames:
+                                rpy.write(f"    \"{Path(frame).stem}\"\n")
+                                self.output_effect(file=rpy,
+                                                   sound_enabled=self.insert_audio.get(),
+                                                   current_frame=frame)
+                                rpy.write(f"    {var.timing()}\n")
+                            rpy.write("    repeat\n\n")
                 except TypeError:
                     pass
 
@@ -313,7 +315,7 @@ class Controller:
         self.rict_data = open(self.config['Files']['Script']).read()
 
     def debug(self):
-        """Creating a whole spoof operation."""
+        """Randomly fill some fields and variables. For testing purposes."""
         rpy_file_path = self.config['Files']['RpyFile']
         if Path(rpy_file_path).is_file():
             self.rpy_file.set(rpy_file_path)
