@@ -25,7 +25,14 @@ class Configuration(ConfigParser):
                 self.write(configfile)
 
     def set_(self, section, key, value):
+        self.read('settings.ini')
         self.set(section, key, value)
+        with open('settings.ini', 'w') as configfile:
+            self.write(configfile)
+
+    def export(self, key, value):
+        self.read('settings.ini')
+        self.set('Parameters', key, value)
         with open('settings.ini', 'w') as configfile:
             self.write(configfile)
 

@@ -40,15 +40,16 @@ class Controller:
         self.disable_repeat = BooleanVar()
         self.sound_function = StringVar()
         self.legacy_syntax = BooleanVar()
-        if self.config['Parameters'].getboolean('LegacySyntax'):
-            self.legacy_syntax.set(True)
-
+        if not self.config.has_option('Parameters', 'legacy_syntax'):
+            self.config['Parameters'] = {"legacy_syntax": "False"}
+        else:
+            self.legacy_syntax.set(self.config.getboolean('Parameters', 'legacy_syntax'))
 
     def legacy_config(self):
         if self.legacy_syntax.get():
-            self.config.set_('Parameters', 'LegacySyntax', 'True')
+            self.config.export('legacy_syntax', 'True')
         else:
-            self.config.set_('Parameters', 'LegacySyntax', 'False')
+            self.config.export('legacy_syntax', 'False')
 
     def read_rpy(self):
         self.rpy_data = open(self.rpy_file.get()).read()

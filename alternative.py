@@ -36,6 +36,7 @@ class Alternative(Frame):
     def add_alternative(self):
         entry = AlternativeEntry(self, self.controller)
         self.controller.alt_entries.append(entry)
+        self.controller.alt_entries[-1].post_init()
         self.controller.alt_entries[-1].place(self.bar_row.get())
         # self.alt_entries.append(AlternativeEntry(self, self.controller).place(self.bar_row.get()))
         self.update_grid()
@@ -66,14 +67,16 @@ class AlternativeEntry(Frame):
     def __init__(self, frame, controller):
         super().__init__()
         self.controller = controller
+        self.config = controller.config
         # self.entry_id = ''.join(choices(letters + digits, k=20))
         # I'm aware I'm overcomplicating things. But I'm trying something different.
         self.play_button = PhotoImage(file="src/play_button.png")
         self.delete_button = PhotoImage(file="src/close_button.png")
+        self.alt_handle = StringVar()
         self.alt_timing = StringVar()
         self.attr = (
             ttk.Label(frame, text="Suffix: "),
-            ttk.Entry(frame, width=15),
+            ttk.Entry(frame, width=15, textvariable=self.alt_handle),
             ttk.Label(frame, text="Timing: "),
             ttk.Entry(frame, width=5, textvariable=self.alt_timing),
             ttk.Button(frame, image=self.delete_button, command=self.delete),
@@ -84,7 +87,30 @@ class AlternativeEntry(Frame):
                        )
         )
 
+        self.alt_handle.trace_add('write', self.store_handle)
         self.alt_timing.trace_add('write', self.enable_preview)
+        self.alt_timing.trace_add('write', self.store_timing)
+
+    def post_init(self):
+        object_index = self.controller.alt_entries.index(self)
+        if self.config.has_option('Parameters', f"alt_handle_{object_index}"):
+            self.alt_handle.set(self.config['Parameters'][f"alt_handle_{object_index}"])
+        if self.config.has_option('Parameters', f"alt_timing_{object_index}"):
+            self.alt_timing.set(self.config['Parameters'][f"alt_timing_{object_index}"])
+
+    def store_handle(self, *args):
+        handle = f"alt_handle_{self.controller.alt_entries.index(self)}"
+        if not self.config.has_option('Parameters', handle):
+            self.config['Parameters'] = {handle: self.alt_handle.get()}
+        else:
+            self.config.export(handle, self.alt_handle.get())
+
+    def store_timing(self, *args):
+        timing = f"alt_timing_{self.controller.alt_entries.index(self)}"
+        if not self.config.has_option('Parameters', timing):
+            self.config['Parameters'] = {timing: self.alt_timing.get()}
+        else:
+            self.config.export(timing, self.alt_timing.get())
 
     def enable_preview(self, *args):
         if self.controller.is_num(self.alt_timing.get()):
@@ -94,7 +120,7 @@ class AlternativeEntry(Frame):
 
     def place(self, at):
         for widget in self.attr:
-            widget.grid(row=at, column=self.attr.index(widget), padx=(3,3), pady=(2, 0), sticky=W)
+            widget.grid(row=at, column=self.attr.index(widget), padx=(3, 3), pady=(2, 0), sticky=W)
 
     def delete(self):
         for widget in self.attr:
