@@ -39,6 +39,7 @@ class Controller:
         self.audio_path = StringVar()
         self.disable_repeat = BooleanVar()
         self.sound_function = StringVar()
+        self.legacy_syntax = BooleanVar()
 
     def read_rpy(self):
         self.rpy_data = open(self.rpy_file.get()).read()
@@ -137,7 +138,10 @@ class Controller:
                     self.sfx_async_output(file=rpy, timing_var=self.main_timing.get())
                 else:
                     for frame in self.frames:
-                        rpy.write(f"    \"{Path(frame).stem}\"\n")
+                        if self.legacy_syntax.get():
+                            rpy.write(f"    \"{frame.split('images/')[1]}\"\n")
+                        else:
+                            rpy.write(f"    \"{Path(frame).stem}\"\n")
                         self.output_effect(sound_enabled=self.insert_audio.get(),
                                            file=rpy,
                                            current_frame=frame)
@@ -196,7 +200,10 @@ class Controller:
         file.write("    parallel:\n")
         for frame in self.frames:
             loop_duration += round(float(timing_var), 3)
-            file.write(f"        \"{Path(frame).stem}\"\n")
+            if self.legacy_syntax.get():
+                file.write(f"        \"{frame.split('images/')[1]}\"\n")
+            else:
+                file.write(f"        \"{Path(frame).stem}\"\n")
             file.write(f"        {timing_var}\n")
         file.write("        repeat\n")
 
@@ -258,7 +265,10 @@ class Controller:
                                                   timing_var=var.timing())
                         else:
                             for frame in self.frames:
-                                rpy.write(f"    \"{Path(frame).stem}\"\n")
+                                if self.legacy_syntax.get():
+                                    rpy.write(f"    \"{frame.split('images/')[1]}\"\n")
+                                else:
+                                    rpy.write(f"    \"{Path(frame).stem}\"\n")
                                 self.output_effect(file=rpy,
                                                    sound_enabled=self.insert_audio.get(),
                                                    current_frame=frame)

@@ -24,6 +24,9 @@ class Buttons(Frame):
         self.output_btn.grid(column=0, row=3, sticky=NE, ipadx=7)
         # self.controller.output_btn = self.output
         ttk.Button(self, text="DEBUG", command=self.controller.debug, width=14)
+        ttk.Checkbutton(self,
+                        variable=self.controller.legacy_syntax,
+                        text="Legacy syntax")
 
         for child in self.winfo_children():
             child.grid(pady=(5, 0), padx=(30, 10), sticky=NE)
