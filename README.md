@@ -2,12 +2,7 @@
 RICT is a tool intended to shorten the time spent writing (or copy-pasting) image blocks in Ren'py,</br>
 and everything else that comes with it, by allowing users to easily create animation loops through a GUI.</br>
 
-<strong>Fully compatible with Ren'py 8+.</br></strong>
-It's mostly, entirely even, going to work with older versions as well (Especially 7.4+).</br>
-But some features, present and future, will make use of Python to get around Ren'py limitations,</br>
-and may be incompatible with Python 2.7.
-
-# Current Features
+# Features
   
   <strong>Scene preview:</strong> Fine-tune your image before output.<br>
   <strong>Alternative timings</strong>: Create multiple, alternatively timed scenes at once based on the same frames.<br>
